@@ -1,11 +1,9 @@
-from openai import OpenAI
+import openai
 import json
 
-# Initialize OpenAI client
-client = OpenAI(
-    api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com"
-)
+# Configure OpenAI
+openai.api_key = "sk-e275a5c8e0684743bf45ab3ebe79607e"
+openai.api_base = "https://api.deepseek.com/v1"
 
 def generate_response(message):
     try:
@@ -14,14 +12,14 @@ def generate_response(message):
             return "I'm your virtual writing assistant, do you need help?"
         
         # Call Deepseek API
-        completion = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="deepseek-chat",
             messages=[
                 {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
                 {"role": "user", "content": message}
             ]
         )
-        return completion.choices[0].message.content
+        return response.choices[0].message.content
     except Exception as e:
         print(f"Error in generate_response: {e}")
         raise e
