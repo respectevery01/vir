@@ -1,26 +1,20 @@
 import openai
 import json
 
-# Initialize OpenAI client
-client = openai(
-    api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com/v1"
+openai.api_key = "sk-e275a5c8e0684743bf45ab3ebe79607e"
+openai.api_base = "https://api.deepseek.com/v1"
+
+response = openai.ChatCompletion.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
+        {"role": "user", "content": "Hello"},
+    ],
+    stream=False,
 )
 
-def generate_response(message):
-    # Check if it's a greeting
-    if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
-        return "I'm your virtual writing assistant, do you need help?"
-    
-    # Call Deepseek API
-    completion = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[
-            {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
-            {"role": "user", "content": message}
-        ]
-    )
-    return completion.choices[0].message.content
+print(response.choices[0].message.content)
+
 
 def handler(request):
     """
