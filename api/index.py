@@ -2,8 +2,8 @@ from http.server import BaseHTTPRequestHandler
 import openai
 import json
 
-openai.api_key = "sk-e275a5c8e0684743bf45ab3ebe79607e"
-openai.api_base = "https://api.deepseek.com/v1"
+openai.api_key = "sk-ywHBPpWX3e8smNXkkmac0RtvRBvjI7t451p4Bspe126rfC4M"
+openai.api_base = "https://api.moonshot.cn/v1"
 
 def generate_response(message):
     # Convert message to lowercase for case-insensitive comparison
@@ -29,7 +29,7 @@ def generate_response(message):
     
     # Call Deepseek API for other messages
     response = openai.ChatCompletion.create(
-        model="deepseek-chat",
+        model="moonshot-v1-8k",
         messages=[
             {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
             {"role": "user", "content": message}
