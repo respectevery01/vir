@@ -178,7 +178,7 @@ async function sendMessage() {
             if (message === '你是谁？' || message === 'Who are you?') {
                 response = "I'm your virtual writing assistant, do you need help?";
             } else {
-                const result = await fetch('http://localhost:5000/chat', {
+                const result = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
