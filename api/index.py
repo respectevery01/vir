@@ -1,12 +1,13 @@
-from http.server import BaseHTTPRequestHandler
+from flask import Flask, request, jsonify
 from openai import OpenAI
 import json
+
+app = Flask(__name__)
 
 # Initialize OpenAI client
 client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com/v1",
-    default_headers={"Content-Type": "application/json"}
+    base_url="https://api.deepseek.com/v1"
 )
 
 def generate_response(message):
@@ -28,44 +29,30 @@ def generate_response(message):
         print(f"Error in generate_response: {e}")
         raise e
 
-class handler(BaseHTTPRequestHandler):
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
+@app.route('/api/chat', methods=['POST', 'OPTIONS'])
+def handler():
+    # Handle CORS preflight request
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
 
-    def do_POST(self):
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            request_body = self.rfile.read(content_length).decode('utf-8')
-            data = json.loads(request_body)
-            message = data.get('message', '').strip()
+    try:
+        data = request.get_json()
+        message = data.get('message', '').strip()
 
-            if not message:
-                self._send_error('No message provided', 400)
-                return
+        if not message:
+            return jsonify({'error': 'No message provided'}), 400
 
-            response_text = generate_response(message)
-            self._send_response({'response': response_text})
+        response_text = generate_response(message)
+        response = jsonify({'response': response_text})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
-        except Exception as e:
-            print(f"Error in handler: {e}")
-            self._send_error(str(e), 500)
-
-    def _send_response(self, data):
-        self.send_response(200)
-        self._set_headers()
-        self.wfile.write(json.dumps(data).encode())
-
-    def _send_error(self, message, status_code):
-        self.send_response(status_code)
-        self._set_headers()
-        self.wfile.write(json.dumps({'error': message}).encode())
-
-    def _set_headers(self):
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers() 
+    except Exception as e:
+        print(f"Error in handler: {e}")
+        error_response = jsonify({'error': str(e)})
+        error_response.headers.add('Access-Control-Allow-Origin', '*')
+        return error_response, 500 
