@@ -31,7 +31,7 @@ def generate_response(message):
     response = openai.ChatCompletion.create(
         model="moonshot-v1-8k",
         messages=[
-            {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
+            {"role": "system", "content": "You're a very good virtual writer. You only speak English.You are a writer who is good at writing novels. Your name is Virprologue"},
             {"role": "user", "content": message}
         ],
         stream=False
