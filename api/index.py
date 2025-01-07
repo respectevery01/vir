@@ -1,15 +1,10 @@
 from openai import OpenAI
 import json
-import httpx
 
 # Initialize OpenAI client
 client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com",
-    http_client=httpx.Client(
-        proxies=None,
-        verify=False
-    )
+    base_url="https://api.deepseek.com"
 )
 
 def generate_response(message):
