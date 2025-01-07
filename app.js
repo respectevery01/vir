@@ -132,7 +132,21 @@ async function loadAbout() {
 // Chat functionality
 const messageInput = document.querySelector('.message-input');
 const sendButton = document.querySelector('.send-button');
-const messagesContainer = document.querySelector('.messages');
+const messagesContainer = document.querySelector('.messages-container');
+
+// Add function to adjust messages container height
+function adjustMessagesContainerHeight() {
+    const chatContainer = document.querySelector('.chat-container');
+    const inputContainer = document.querySelector('.input-container');
+    if (chatContainer && inputContainer && messagesContainer) {
+        const chatHeight = chatContainer.offsetHeight;
+        const inputHeight = inputContainer.offsetHeight;
+        messagesContainer.style.height = `${chatHeight - inputHeight}px`;
+    }
+}
+
+// Call the function on window resize
+window.addEventListener('resize', adjustMessagesContainerHeight);
 
 let isSending = false;
 
@@ -151,9 +165,11 @@ function appendMessage(content, isUser = false) {
     messageDiv.appendChild(messageContent);
     messageDiv.appendChild(messageAuthor);
     
-    const container = document.querySelector('.messages-container');
-    container.appendChild(messageDiv);
-    container.scrollTop = container.scrollHeight;
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Adjust container height after adding new message
+    adjustMessagesContainerHeight();
 }
 
 async function sendMessage() {
@@ -217,4 +233,6 @@ messageInput.addEventListener('keypress', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     navigateToPage('home');
     messageInput.focus();
+    // Initial adjustment of messages container height
+    adjustMessagesContainerHeight();
 }); 
