@@ -4,19 +4,23 @@ import json
 openai.api_key = "sk-e275a5c8e0684743bf45ab3ebe79607e"
 openai.api_base = "https://api.deepseek.com/v1"
 
-response = openai.ChatCompletion.create(
-    model="deepseek-chat",
-    messages=[
-        {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
-        {"role": "user", "content": "Hello"},
-    ],
-    stream=False,
-)
+def generate_response(message):
+    # Check if it's a greeting
+    if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
+        return "I'm your virtual writing assistant, do you need help?"
+    
+    # Call Deepseek API
+    response = openai.ChatCompletion.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
+            {"role": "user", "content": message}
+        ],
+        stream=False
+    )
+    return response.choices[0].message.content
 
-print(response.choices[0].message.content)
-
-
-def handler(request):
+def handler(event, context):
     """
     Vercel serverless function handler
     """
@@ -29,7 +33,7 @@ def handler(request):
     }
 
     # Handle CORS preflight request
-    if request.get('method', '').upper() == 'OPTIONS':
+    if event.get('httpMethod', '').upper() == 'OPTIONS':
         return {
             'statusCode': 204,
             'headers': headers,
@@ -37,7 +41,7 @@ def handler(request):
         }
 
     # Only allow POST method
-    if request.get('method', '').upper() != 'POST':
+    if event.get('httpMethod', '').upper() != 'POST':
         return {
             'statusCode': 405,
             'headers': headers,
@@ -46,7 +50,7 @@ def handler(request):
 
     try:
         # Parse request body
-        body = json.loads(request.get('body', '{}'))
+        body = json.loads(event.get('body', '{}'))
         message = body.get('message', '').strip()
 
         if not message:
