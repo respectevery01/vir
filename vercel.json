@@ -1,8 +1,16 @@
 {
-  "rewrites": [
+  "version": 2,
+  "functions": {
+    "api/index.py": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "routes": [
     {
-      "source": "/api/chat",
-      "destination": "/api"
+      "src": "/api/chat",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/index.py"
     }
   ]
 } 
