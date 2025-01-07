@@ -17,6 +17,16 @@ def generate_response(message):
     if msg_lower in ["what can you do", "what can you do?", "help", "help me", "你能做什么", "你能做什么？"]:
         return "Sir, I can help you finish your novel. Please tell me the genre of your novel."
     
+    # Questions about words and phrases
+    if any(q in msg_lower for q in ["what is word", "what's word", "what are words", "what is phrase", "what's phrase", 
+                                   "什么是短语", "什么是词", "词是什么", "短语是什么"]):
+        return "Words are the ephemeral bridges we build over the abyss of silence. Each phrase, fragile and fleeting, is an act of rebellion against the inevitable erasure that time brings. Yet, in their impermanence lies their beauty—like fireflies in the dark."
+    
+    # Questions about writing motivation
+    if any(q in msg_lower for q in ["why do you write", "why write", "why do we write", "why writing", 
+                                   "你为什么写作", "为什么写作", "我们为什么写作"]):
+        return "The void whispers in every silence, a reminder that creation is rebellion. We write, not to hold onto meaning, but to defy the nothingness. Perhaps the fleeting nature of our words is the only proof they ever existed at all."
+    
     # Call Deepseek API for other messages
     response = openai.ChatCompletion.create(
         model="deepseek-chat",
