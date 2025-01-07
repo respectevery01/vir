@@ -1,15 +1,10 @@
-from flask import Flask, request, jsonify
 from openai import OpenAI
 import json
-import httpx
-
-app = Flask(__name__)
 
 # Initialize OpenAI client
 client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com/v1",
-    http_client=httpx.Client(verify=False)
+    base_url="https://api.deepseek.com/v1"
 )
 
 def generate_response(message):
@@ -27,33 +22,60 @@ def generate_response(message):
     )
     return completion.choices[0].message.content
 
-@app.route('/api/chat', methods=['POST', 'OPTIONS'])
-def chat():
+def handler(request):
+    """
+    Vercel serverless function handler
+    """
+    # Set default headers
+    headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
+    }
+
     # Handle CORS preflight request
-    if request.method == 'OPTIONS':
-        response = jsonify({})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        return response
+    if request.get('method', '').upper() == 'OPTIONS':
+        return {
+            'statusCode': 204,
+            'headers': headers,
+            'body': ''
+        }
+
+    # Only allow POST method
+    if request.get('method', '').upper() != 'POST':
+        return {
+            'statusCode': 405,
+            'headers': headers,
+            'body': json.dumps({'error': 'Method not allowed'})
+        }
 
     try:
-        data = request.get_json()
-        message = data.get('message', '').strip()
+        # Parse request body
+        body = json.loads(request.get('body', '{}'))
+        message = body.get('message', '').strip()
 
         if not message:
-            return jsonify({'error': 'No message provided'}), 400
+            return {
+                'statusCode': 400,
+                'headers': headers,
+                'body': json.dumps({'error': 'No message provided'})
+            }
 
         # Generate response
         response_text = generate_response(message)
         
         # Return success response
-        response = jsonify({'response': response_text})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
+        return {
+            'statusCode': 200,
+            'headers': headers,
+            'body': json.dumps({'response': response_text})
+        }
 
     except Exception as e:
         print(f"Error in handler: {e}")
-        error_response = jsonify({'error': str(e)})
-        error_response.headers.add('Access-Control-Allow-Origin', '*')
-        return error_response, 500 
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'error': str(e)})
+        } 
