@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirPrologue - AI Writer</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mui/material@5.14.5/dist/css/material.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitbook-style@latest/dist/gitbook.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="logo-container">
+                <a href="#" class="home-link" data-page="home">
+                    <img src="assets/logo.png" alt="VirPrologue Logo" class="logo">
+                    <h1>VirPrologue - AI Writer</h1>
+                </a>
+            </div>
+        </header>
+
+        <main>
+            <div class="main-container">
+                <div class="content-wrapper">
+                    <div class="sidebar">
+                        <a href="#" class="nav-link" data-page="novel">
+                            <img src="assets/book.png" alt="Novel" class="nav-icon">
+                            <span>Novel</span>
+                        </a>
+                        <a href="#" class="nav-link" data-page="features">
+                            <img src="assets/feature.png" alt="Features" class="nav-icon">
+                            <span>Features</span>
+                        </a>
+                        <a href="#" class="nav-link" data-page="about">
+                            <img src="assets/docs.png" alt="About" class="nav-icon">
+                            <span>About</span>
+                        </a>
+                        <a href="#" class="nav-link" data-page="chat">
+                            <img src="assets/chat.png" alt="Chat" class="nav-icon">
+                            <span>Chat</span>
+                        </a>
+                    </div>
+
+                    <div class="content">
+                        <section id="home-section" class="page">
+                            <div class="home-content">
+                                <h1>Hi, I'm VirPrologue.</h1>
+                            </div>
+                        </section>
+
+                        <section id="error-section" class="page">
+                            <div class="error-content">
+                                <img src="assets/error.svg" alt="404 Error" class="error-icon">
+                                <h1>404</h1>
+                                <p>Oops! The page you're looking for doesn't exist.</p>
+                            </div>
+                        </section>
+
+                        <section id="features-section" class="page">
+                            <div class="features-container">
+                                <div class="feature-card">
+                                    <h3>Creates Original Stories</h3>
+                                    <p>From science fiction epics to heartfelt dramas, every work is an authentic creation.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h3>Explores New Perspectives</h3>
+                                    <p>Generates thought-provoking narratives that challenge conventional ideas and inspire innovation.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h3>Evolves Continuously</h3>
+                                    <p>Learns and adapts with each story, pushing the boundaries of AI-driven literature.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="novel-section" class="page">
+                            <div class="novel-container">
+                                <div class="chapter-sidebar">
+                                    <div class="chapter-list"></div>
+                                </div>
+                                <div class="content-container">
+                                    <div class="story-content"></div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="about-section" class="page gitbook-style">
+                            <div class="content-container">
+                                <div class="about-content"></div>
+                            </div>
+                        </section>
+
+                        <section id="chat-section" class="page">
+                            <div class="chat-container">
+                                <div class="messages-container">
+                                    <div class="message assistant">
+                                        <div class="message-content">I'm your virtual writing assistant, do you need help?</div>
+                                        <div class="message-author">VirPrologue</div>
+                                    </div>
+                                </div>
+                                <div class="input-container">
+                                    <input type="text" class="message-input" placeholder="Type your message...">
+                                    <button class="send-button">Send</button>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="social-links">
+                <a href="https://x.com/VirPrologue" class="social-link" target="_blank">
+                    <img src="assets/twitter.png" alt="Twitter" class="social-icon">
+                </a>
+                <a href="https://github.com/VirPrologue" class="social-link" target="_blank">
+                    <img src="assets/github.png" alt="GitHub" class="social-icon">
+                </a>
+            </div>
+            <div class="copyright">
+                © 2024 VirPrologue. All rights reserved.
+            </div>
+        </footer>
+    </div>
+
+    <button id="theme-toggle" class="theme-toggle">
+        <img src="assets/moon.png" alt="Theme" class="theme-icon dark">
+        <img src="assets/sun.png" alt="Theme" class="theme-icon light">
+    </button>
+
+    <script src="app.js"></script>
+</body>
+</html>
