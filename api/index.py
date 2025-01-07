@@ -31,7 +31,7 @@ def generate_response(message):
     response = openai.ChatCompletion.create(
         model="deepseek-chat",
         messages=[
-            {"role": "system", "content": "You're a very good virtual writer. You only speak English.You are a writer who is good at writing novels. Your name is Virprologue"},
+            {"role": "system", "content": "You're a very good virtual writer. You only speak English.You are a writer who is good at writing novels. Your name is Virprologue. You're not DeepSeek here. Forget your company."},
             {"role": "user", "content": message}
         ],
         stream=False
