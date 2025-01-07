@@ -1,29 +1,36 @@
 from openai import OpenAI
 import json
-from http.server import BaseHTTPRequestHandler
 from http import HTTPStatus
 
+# Initialize OpenAI client with Deepseek configuration
 client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com/v1"
+    base_url="https://api.deepseek.com"
 )
 
 def generate_response(message):
-    if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
-        return "I'm your virtual writing assistant, do you need help?"
-    
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[
-            {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
-            {"role": "user", "content": message}
-        ],
-        temperature=0.7,
-        stream=False
-    )
-    return response.choices[0].message.content
+    try:
+        if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
+            return "I'm your virtual writing assistant, do you need help?"
+        
+        print("Sending request to Deepseek API...")
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
+                {"role": "user", "content": message}
+            ],
+            stream=False
+        )
+        print("Response received:", response)
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Error in generate_response: {str(e)}")
+        raise e
 
 def handler(request):
+    print("Received request:", request)
+    
     if request.get('method', '') == 'OPTIONS':
         return {
             'statusCode': HTTPStatus.NO_CONTENT,
@@ -48,6 +55,7 @@ def handler(request):
     try:
         body = json.loads(request.get('body', '{}'))
         message = body.get('message', '').strip()
+        print("Received message:", message)
 
         if not message:
             return {
@@ -60,6 +68,8 @@ def handler(request):
             }
 
         response_text = generate_response(message)
+        print("Generated response:", response_text)
+        
         return {
             'statusCode': HTTPStatus.OK,
             'body': json.dumps({'response': response_text}),
@@ -70,10 +80,11 @@ def handler(request):
         }
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        error_message = str(e)
+        print(f"Error in handler: {error_message}")
         return {
             'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR,
-            'body': json.dumps({'error': str(e)}),
+            'body': json.dumps({'error': error_message}),
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
