@@ -1,6 +1,7 @@
 from openai import OpenAI
 import json
 from http.server import BaseHTTPRequestHandler
+from http import HTTPStatus
 
 client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
@@ -22,38 +23,59 @@ def generate_response(message):
     )
     return response.choices[0].message.content
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length).decode('utf-8')
-            data = json.loads(body)
-            message = data.get('message', '').strip()
+def handler(request):
+    if request.get('method', '') == 'OPTIONS':
+        return {
+            'statusCode': HTTPStatus.NO_CONTENT,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Content-Type': 'application/json'
+            }
+        }
 
-            if not message:
-                self._send_response(400, {'error': 'No message provided'})
-                return
+    if request.get('method', '') != 'POST':
+        return {
+            'statusCode': HTTPStatus.METHOD_NOT_ALLOWED,
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            }
+        }
 
-            response_text = generate_response(message)
-            self._send_response(200, {'response': response_text})
+    try:
+        body = json.loads(request.get('body', '{}'))
+        message = body.get('message', '').strip()
 
-        except Exception as e:
-            print(f"Error: {str(e)}")
-            self._send_response(500, {'error': str(e)})
+        if not message:
+            return {
+                'statusCode': HTTPStatus.BAD_REQUEST,
+                'body': json.dumps({'error': 'No message provided'}),
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                }
+            }
 
-    def do_OPTIONS(self):
-        self._set_headers()
-        self.send_response(204)
-        self.end_headers()
+        response_text = generate_response(message)
+        return {
+            'statusCode': HTTPStatus.OK,
+            'body': json.dumps({'response': response_text}),
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            }
+        }
 
-    def _set_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.send_header('Content-Type', 'application/json')
-
-    def _send_response(self, status_code, data):
-        self.send_response(status_code)
-        self._set_headers()
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode('utf-8')) 
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return {
+            'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR,
+            'body': json.dumps({'error': str(e)}),
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            }
+        } 

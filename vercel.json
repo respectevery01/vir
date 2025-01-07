@@ -18,14 +18,15 @@
       "use": "@vercel/static"
     },
     {
-      "src": "api/index.py",
+      "src": "api/*.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/chat",
-      "dest": "/api/index.py"
+      "methods": ["POST", "OPTIONS"],
+      "dest": "api/index.py"
     },
     {
       "handle": "filesystem"
