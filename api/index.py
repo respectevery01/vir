@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import openai
 import json
 
 # Initialize OpenAI client
