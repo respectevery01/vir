@@ -2,39 +2,34 @@ from openai import OpenAI
 import json
 import httpx
 
-def create_client():
-    return OpenAI(
-        api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-        base_url="https://api.deepseek.com/v1",
-        http_client=httpx.Client(verify=False)
-    )
+# Initialize OpenAI client
+client = OpenAI(
+    api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
+    base_url="https://api.deepseek.com/v1",
+    http_client=httpx.Client(verify=False)
+)
 
 def generate_response(message):
     # Check if it's a greeting
     if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
         return "I'm your virtual writing assistant, do you need help?"
     
-    # Create a new client for each request
-    with create_client() as client:
-        # Call Deepseek API
-        completion = client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[
-                {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
-                {"role": "user", "content": message}
-            ]
-        )
-        return completion.choices[0].message.content
+    # Call Deepseek API
+    completion = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
+            {"role": "user", "content": message}
+        ]
+    )
+    return completion.choices[0].message.content
 
-def handler(request):
+def handle(req):
     """
-    request - dict with the following keys:
-    - httpMethod: HTTP method
-    - body: Request body (if any)
-    - headers: Request headers
+    Vercel serverless function handler
     """
     # Handle CORS preflight request
-    if request.get('httpMethod') == 'OPTIONS':
+    if req.get('method', '').upper() == 'OPTIONS':
         return {
             'statusCode': 204,
             'headers': {
@@ -46,7 +41,7 @@ def handler(request):
         }
 
     # Only allow POST method
-    if request.get('httpMethod') != 'POST':
+    if req.get('method', '').upper() != 'POST':
         return {
             'statusCode': 405,
             'headers': {
@@ -58,7 +53,7 @@ def handler(request):
 
     try:
         # Parse request body
-        body = json.loads(request.get('body', '{}'))
+        body = json.loads(req.get('body', '{}'))
         message = body.get('message', '').strip()
 
         if not message:
