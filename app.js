@@ -174,34 +174,32 @@ async function sendMessage() {
         document.querySelector('.messages-container').appendChild(loadingDiv);
         
         try {
-            let response;
-            if (message.toLowerCase() === '你是谁？' || message.toLowerCase() === 'who are you?') {
-                response = "I'm your virtual writing assistant, do you need help?";
-            } else {
-                const result = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message })
-                });
+            const result = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message })
+            });
 
-                const data = await result.json();
-                
-                if (!result.ok) {
-                    throw new Error(data.error || 'Failed to get response');
-                }
-                
-                response = data.response;
-            }
+            const data = await result.json();
             
             // Remove loading animation
             document.querySelector('.messages-container').removeChild(loadingDiv);
-            appendMessage(response, false);
+            
+            if (!result.ok) {
+                throw new Error(data.error || 'Failed to get response');
+            }
+            
+            appendMessage(data.response, false);
             
         } catch (error) {
             console.error('Error:', error);
-            document.querySelector('.messages-container').removeChild(loadingDiv);
+            // Remove loading animation if it still exists
+            const loadingElement = document.querySelector('.loading');
+            if (loadingElement) {
+                loadingElement.remove();
+            }
             appendMessage('Sorry, there was an error processing your message. Please try again.', false);
         }
     }
