@@ -445,65 +445,41 @@ main {
 }
 
 #chat-section {
-    flex: 1;
+    height: 100%;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
-.chat-container {
+.chat-outer-container {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 80px);
+    height: calc(100vh - 80px);
     background: var(--card-bg);
     position: relative;
 }
 
-.messages-container {
+.chat-messages-wrapper {
     flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+}
+
+.messages-container {
     display: flex;
     flex-direction: column;
-    padding: 2rem;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    min-height: 200px;
-}
-
-.messages-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.messages-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-    background: rgba(100, 108, 255, 0.2);
-    border-radius: 4px;
-}
-
-.messages-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 108, 255, 0.3);
-}
-
-.message-group {
-    padding: 1rem;
-    border-bottom: 1px solid var(--card-border);
-    animation: fadeIn 0.3s ease;
-    background: var(--card-bg);
-    transition: background-color 0.3s ease;
-}
-
-.message-group:hover {
-    background: rgba(100, 108, 255, 0.03);
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 1rem;
 }
 
 .message {
     display: flex;
     flex-direction: column;
     max-width: 70%;
-    margin-bottom: 1.5rem;
     padding: 1rem 1.2rem;
     border-radius: 12px;
     background: var(--card-bg);
@@ -520,13 +496,11 @@ main {
     background: var(--primary-color);
     color: white;
     border-top-right-radius: 4px;
-    margin-left: auto;
 }
 
 .message.assistant {
     align-self: flex-start;
     border-top-left-radius: 4px;
-    margin-right: auto;
 }
 
 .message-content {
@@ -545,16 +519,15 @@ main {
 }
 
 .input-container {
-    position: sticky;
-    bottom: 0;
+    padding: 1.5rem 2rem;
     background: var(--card-bg);
     border-top: 1px solid var(--card-border);
-    padding: 1.5rem 2rem;
     display: flex;
     gap: 1rem;
     align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
     width: 100%;
-    z-index: 10;
 }
 
 .message-input {
@@ -578,51 +551,6 @@ main {
     box-shadow: 0 0 0 2px var(--glow-color);
 }
 
-.loading {
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    opacity: 0;
-    animation: fadeIn 0.3s ease forwards;
-}
-
-.loading img {
-    width: 16px;
-    height: 16px;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 .send-button {
     padding: 1rem 1.5rem;
     background: var(--primary-color);
@@ -638,6 +566,17 @@ main {
 .send-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px var(--glow-color);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 footer {
