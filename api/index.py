@@ -1,21 +1,23 @@
-from http.server import BaseHTTPRequestHandler
-from openai import OpenAI
+import os
 import json
+import httpx
+from openai import OpenAI, AsyncOpenAI
 
 # Initialize OpenAI client
-client = OpenAI(
+client = AsyncOpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com/v1"
+    base_url="https://api.deepseek.com/v1",
+    http_client=httpx.AsyncClient(verify=False)
 )
 
-def generate_response(message):
+async def generate_response(message):
     try:
         # Check if it's a greeting
         if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
             return "I'm your virtual writing assistant, do you need help?"
         
         # Call Deepseek API
-        completion = client.chat.completions.create(
+        completion = await client.chat.completions.create(
             model="deepseek-chat",
             messages=[
                 {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
@@ -27,12 +29,12 @@ def generate_response(message):
         print(f"Error in generate_response: {e}")
         raise e
 
-def handler(event, context):
+async def handler(request):
     """
     Vercel serverless function handler
     """
     # Handle CORS preflight request
-    if event.get('httpMethod') == 'OPTIONS':
+    if request.get('method') == 'OPTIONS':
         return {
             'statusCode': 204,
             'headers': {
@@ -44,7 +46,7 @@ def handler(event, context):
         }
 
     # Only allow POST method
-    if event.get('httpMethod') != 'POST':
+    if request.get('method') != 'POST':
         return {
             'statusCode': 405,
             'headers': {
@@ -56,7 +58,7 @@ def handler(event, context):
 
     try:
         # Parse request body
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(request.get('body', '{}'))
         message = body.get('message', '').strip()
 
         if not message:
@@ -70,7 +72,7 @@ def handler(event, context):
             }
 
         # Generate response
-        response_text = generate_response(message)
+        response_text = await generate_response(message)
         
         # Return success response
         return {
