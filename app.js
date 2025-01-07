@@ -175,7 +175,7 @@ async function sendMessage() {
         
         try {
             let response;
-            if (message === '你是谁？' || message === 'Who are you?') {
+            if (message.toLowerCase() === '你是谁？' || message.toLowerCase() === 'who are you?') {
                 response = "I'm your virtual writing assistant, do you need help?";
             } else {
                 const result = await fetch('/api/chat', {
@@ -187,7 +187,8 @@ async function sendMessage() {
                 });
                 
                 if (!result.ok) {
-                    throw new Error('Network response was not ok');
+                    const errorData = await result.json();
+                    throw new Error(errorData.error || 'Network response was not ok');
                 }
                 
                 const data = await result.json();
