@@ -8,7 +8,7 @@ CORS(app)
 
 # Initialize OpenAI client with Deepseek configuration
 client = OpenAI(
-    api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
+    api_key=os.environ.get("DEEPSEEK_API_KEY", "sk-e275a5c8e0684743bf45ab3ebe79607e"),
     base_url="https://api.deepseek.com/v1"
 )
 
@@ -22,7 +22,7 @@ GREETING_QUESTIONS = [
     "who are u"
 ]
 
-@app.route('/chat', methods=['POST'])
+@app.route('/api/chat', methods=['POST'])
 def chat():
     try:
         data = request.json
@@ -52,5 +52,7 @@ def chat():
         print(f"Error: {str(e)}")
         return jsonify({'error': f'Server Error: {str(e)}'}), 500
 
-if __name__ == '__main__':
-    app.run(port=5000, debug=True) 
+# Vercel requires a handler function
+def handler(request):
+    with app.request_context(request):
+        return app.handle_request() 
