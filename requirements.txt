@@ -1,2 +1,2 @@
-openai>=1.59.3
-httpx>=0.28.1
+openai==0.27.7
+httpx==0.24.1
