@@ -1,10 +1,15 @@
 from openai import OpenAI
 import json
+import httpx
 
 # Initialize OpenAI client
 client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com"
+    base_url="https://api.deepseek.com",
+    http_client=httpx.Client(
+        proxies=None,
+        verify=False
+    )
 )
 
 def generate_response(message):
@@ -26,10 +31,10 @@ def generate_response(message):
         print(f"Error in generate_response: {e}")
         raise e
 
-async def handler(request):
-    if request.method == 'OPTIONS':
+def handler(request):
+    if request.get('method') == 'OPTIONS':
         return {
-            'status': 200,
+            'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -39,9 +44,9 @@ async def handler(request):
             'body': ''
         }
 
-    if request.method != 'POST':
+    if request.get('method') != 'POST':
         return {
-            'status': 405,
+            'statusCode': 405,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
@@ -50,12 +55,12 @@ async def handler(request):
         }
 
     try:
-        body = json.loads(request.body)
+        body = json.loads(request.get('body', '{}'))
         message = body.get('message', '').strip()
 
         if not message:
             return {
-                'status': 400,
+                'statusCode': 400,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
                     'Content-Type': 'application/json'
@@ -65,7 +70,7 @@ async def handler(request):
 
         response_text = generate_response(message)
         return {
-            'status': 200,
+            'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
@@ -76,7 +81,7 @@ async def handler(request):
     except Exception as e:
         print(f"Error in handler: {e}")
         return {
-            'status': 500,
+            'statusCode': 500,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
