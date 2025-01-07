@@ -2,7 +2,7 @@ import openai
 import json
 
 # Initialize OpenAI client
-client = openai.OpenAI(
+client = openai(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
     base_url="https://api.deepseek.com/v1"
 )
