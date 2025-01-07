@@ -1,40 +1,36 @@
-import os
+from openai import OpenAI
 import json
-import httpx
-from openai import OpenAI, AsyncOpenAI
 
 # Initialize OpenAI client
-client = AsyncOpenAI(
+client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com/v1",
-    http_client=httpx.AsyncClient(verify=False)
+    base_url="https://api.deepseek.com/v1"
 )
 
-async def generate_response(message):
-    try:
-        # Check if it's a greeting
-        if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
-            return "I'm your virtual writing assistant, do you need help?"
-        
-        # Call Deepseek API
-        completion = await client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[
-                {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
-                {"role": "user", "content": message}
-            ]
-        )
-        return completion.choices[0].message.content
-    except Exception as e:
-        print(f"Error in generate_response: {e}")
-        raise e
+def generate_response(message):
+    # Check if it's a greeting
+    if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
+        return "I'm your virtual writing assistant, do you need help?"
+    
+    # Call Deepseek API
+    completion = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": "You're a very good virtual writer. You only speak English."},
+            {"role": "user", "content": message}
+        ]
+    )
+    return completion.choices[0].message.content
 
-async def handler(request):
+def handler(request):
     """
-    Vercel serverless function handler
+    request - dict with the following keys:
+    - httpMethod: HTTP method
+    - body: Request body (if any)
+    - headers: Request headers
     """
     # Handle CORS preflight request
-    if request.get('method') == 'OPTIONS':
+    if request.get('httpMethod') == 'OPTIONS':
         return {
             'statusCode': 204,
             'headers': {
@@ -46,7 +42,7 @@ async def handler(request):
         }
 
     # Only allow POST method
-    if request.get('method') != 'POST':
+    if request.get('httpMethod') != 'POST':
         return {
             'statusCode': 405,
             'headers': {
@@ -72,7 +68,7 @@ async def handler(request):
             }
 
         # Generate response
-        response_text = await generate_response(message)
+        response_text = generate_response(message)
         
         # Return success response
         return {
