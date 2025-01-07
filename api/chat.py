@@ -1,7 +1,6 @@
 from http.server import BaseHTTPRequestHandler
 import json
 from openai import OpenAI
-import os
 
 # Initialize OpenAI client with Deepseek configuration
 client = OpenAI(
@@ -22,11 +21,17 @@ GREETING_QUESTIONS = [
 def handle_chat(message):
     try:
         if not message:
-            return {'error': 'No message provided'}, 400
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'No message provided'})
+            }
 
         # Check if it's a greeting question
         if message.lower() in GREETING_QUESTIONS:
-            return {'response': "I'm your virtual writing assistant, do you need help?"}, 200
+            return {
+                'statusCode': 200,
+                'body': json.dumps({'response': "I'm your virtual writing assistant, do you need help?"})
+            }
 
         # Call Deepseek API using OpenAI SDK
         response = client.chat.completions.create(
@@ -39,41 +44,58 @@ def handle_chat(message):
             stream=False
         )
         
-        return {'response': response.choices[0].message.content}, 200
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'response': response.choices[0].message.content})
+        }
 
     except Exception as e:
         print(f"Error: {str(e)}")
-        return {'error': f'Server Error: {str(e)}'}, 500
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f'Server Error: {str(e)}'})
+        }
 
-class handler(BaseHTTPRequestHandler):
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.end_headers()
-
-    def do_POST(self):
+def handler(event, context):
+    if event['httpMethod'] == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            }
+        }
+    
+    if event['httpMethod'] == 'POST':
         try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length)
-            data = json.loads(body)
-            message = data.get('message', '').strip()
+            body = json.loads(event['body'])
+            message = body.get('message', '').strip()
             
-            response, status_code = handle_chat(message)
-            
-            self.send_response(status_code)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            
-            self.wfile.write(json.dumps(response).encode())
+            response = handle_chat(message)
+            response['headers'] = {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            }
+            return response
             
         except Exception as e:
-            self.send_response(500)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            
-            error_response = {'error': str(e)}
-            self.wfile.write(json.dumps(error_response).encode()) 
+            return {
+                'statusCode': 500,
+                'body': json.dumps({'error': str(e)}),
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            }
+    
+    return {
+        'statusCode': 405,
+        'body': json.dumps({'error': 'Method not allowed'}),
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        }
+    } 

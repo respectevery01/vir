@@ -18,13 +18,22 @@
       "use": "@vercel/static"
     },
     {
-      "src": "api/chat.py",
+      "src": "api/*.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
-    { "src": "/api/chat", "dest": "/api/chat.py" },
-    { "handle": "filesystem" },
-    { "src": "/", "dest": "/index.html" }
+    {
+      "src": "/api/(.*)",
+      "methods": ["OPTIONS", "POST"],
+      "dest": "/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
   ]
 } 

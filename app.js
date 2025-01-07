@@ -185,13 +185,13 @@ async function sendMessage() {
                     },
                     body: JSON.stringify({ message })
                 });
+
+                const data = await result.json();
                 
                 if (!result.ok) {
-                    const errorData = await result.json();
-                    throw new Error(errorData.error || 'Network response was not ok');
+                    throw new Error(data.error || 'Failed to get response');
                 }
                 
-                const data = await result.json();
                 response = data.response;
             }
             
