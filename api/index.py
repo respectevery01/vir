@@ -5,7 +5,8 @@ import json
 # Initialize OpenAI client
 client = OpenAI(
     api_key="sk-e275a5c8e0684743bf45ab3ebe79607e",
-    base_url="https://api.deepseek.com/v1"
+    base_url="https://api.deepseek.com/v1",
+    default_headers={"Content-Type": "application/json"}
 )
 
 def generate_response(message):
