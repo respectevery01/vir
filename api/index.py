@@ -24,7 +24,13 @@ def generate_response(message):
         print(f"Error in generate_response: {e}")
         raise e
 
-def handler(request):
+def handle(request):
+    """
+    request.method: HTTP method
+    request.body: Request body (if any)
+    request.headers: Request headers
+    """
+    # Handle CORS preflight request
     if request.get('method') == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -33,10 +39,10 @@ def handler(request):
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Content-Type': 'application/json'
-            },
-            'body': ''
+            }
         }
 
+    # Only allow POST method
     if request.get('method') != 'POST':
         return {
             'statusCode': 405,
@@ -48,6 +54,7 @@ def handler(request):
         }
 
     try:
+        # Parse request body
         body = json.loads(request.get('body', '{}'))
         message = body.get('message', '').strip()
 
@@ -61,7 +68,10 @@ def handler(request):
                 'body': json.dumps({'error': 'No message provided'})
             }
 
+        # Generate response
         response_text = generate_response(message)
+        
+        # Return success response
         return {
             'statusCode': 200,
             'headers': {
