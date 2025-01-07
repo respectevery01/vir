@@ -1,3 +1,4 @@
+from http.server import BaseHTTPRequestHandler
 import openai
 import json
 
@@ -20,60 +21,44 @@ def generate_response(message):
     )
     return response.choices[0].message.content
 
-def handler(event, context):
-    """
-    Vercel serverless function handler
-    """
-    # Set default headers
-    headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Content-Type': 'application/json'
-    }
+class Handler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
 
-    # Handle CORS preflight request
-    if event.get('httpMethod', '').upper() == 'OPTIONS':
-        return {
-            'statusCode': 204,
-            'headers': headers,
-            'body': ''
-        }
+    def do_POST(self):
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length)
+            data = json.loads(body.decode('utf-8'))
+            message = data.get('message', '').strip()
 
-    # Only allow POST method
-    if event.get('httpMethod', '').upper() != 'POST':
-        return {
-            'statusCode': 405,
-            'headers': headers,
-            'body': json.dumps({'error': 'Method not allowed'})
-        }
+            if not message:
+                self.send_error_response(400, 'No message provided')
+                return
 
-    try:
-        # Parse request body
-        body = json.loads(event.get('body', '{}'))
-        message = body.get('message', '').strip()
+            response_text = generate_response(message)
+            self.send_success_response(response_text)
 
-        if not message:
-            return {
-                'statusCode': 400,
-                'headers': headers,
-                'body': json.dumps({'error': 'No message provided'})
-            }
+        except Exception as e:
+            print(f"Error in handler: {e}")
+            self.send_error_response(500, str(e))
 
-        # Generate response
-        response_text = generate_response(message)
-        
-        # Return success response
-        return {
-            'statusCode': 200,
-            'headers': headers,
-            'body': json.dumps({'response': response_text})
-        }
+    def send_success_response(self, response_text):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        response_data = json.dumps({'response': response_text})
+        self.wfile.write(response_data.encode('utf-8'))
 
-    except Exception as e:
-        print(f"Error in handler: {e}")
-        return {
-            'statusCode': 500,
-            'headers': headers,
-            'body': json.dumps({'error': str(e)})
-        } 
+    def send_error_response(self, status_code, error_message):
+        self.send_response(status_code)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        error_data = json.dumps({'error': error_message})
+        self.wfile.write(error_data.encode('utf-8')) 
