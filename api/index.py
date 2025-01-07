@@ -6,11 +6,18 @@ openai.api_key = "sk-e275a5c8e0684743bf45ab3ebe79607e"
 openai.api_base = "https://api.deepseek.com/v1"
 
 def generate_response(message):
-    # Check if it's a greeting
-    if message.lower() in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
+    # Convert message to lowercase for case-insensitive comparison
+    msg_lower = message.lower()
+    
+    # Identity questions
+    if msg_lower in ["你是谁？", "你是谁", "who are you?", "who are you", "what are you", "what are you?", "who are u"]:
         return "I'm your virtual writing assistant, do you need help?"
     
-    # Call Deepseek API
+    # Capability questions
+    if msg_lower in ["what can you do", "what can you do?", "help", "help me", "你能做什么", "你能做什么？"]:
+        return "Sir, I can help you finish your novel. Please tell me the genre of your novel."
+    
+    # Call Deepseek API for other messages
     response = openai.ChatCompletion.create(
         model="deepseek-chat",
         messages=[
