@@ -52,7 +52,7 @@ navLinks.forEach(link => {
 // Load markdown files
 async function loadNovel() {
     const chapterList = document.querySelector('.chapter-list');
-    const chapters = ['chapter1.md', 'chapter2.md', 'chapter3.md', 'chapter4.md'];
+    const chapters = ['chapter1.md', 'chapter2.md', 'chapter3.md', 'chapter4.md', 'chapter5.md'];
     
     // Create chapter list
     chapterList.innerHTML = chapters.map((chapter, index) => `
@@ -150,6 +150,10 @@ window.addEventListener('resize', adjustMessagesContainerHeight);
 
 let isSending = false;
 
+function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
 function appendMessage(content, isUser = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
@@ -166,10 +170,7 @@ function appendMessage(content, isUser = false) {
     messageDiv.appendChild(messageAuthor);
     
     messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    
-    // Adjust container height after adding new message
-    adjustMessagesContainerHeight();
+    scrollToBottom(); // 滚动到底部
 }
 
 async function sendMessage() {
