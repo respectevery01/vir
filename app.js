@@ -52,7 +52,7 @@ navLinks.forEach(link => {
 // Load markdown files
 async function loadNovel() {
     const chapterList = document.querySelector('.chapter-list');
-    const chapters = ['chapter1.md', 'chapter2.md', 'chapter3.md', 'chapter4.md', 'chapter5.md'];
+    const chapters = ['chapter1.md', 'chapter2.md', 'chapter3.md', 'chapter4.md', 'chapter5.md', 'chapter6.md'];
     
     // Create chapter list
     chapterList.innerHTML = chapters.map((chapter, index) => `
@@ -170,7 +170,7 @@ function appendMessage(content, isUser = false) {
     messageDiv.appendChild(messageAuthor);
     
     messagesContainer.appendChild(messageDiv);
-    scrollToBottom(); // 滚动到底部
+    scrollToBottom(); 
 }
 
 async function sendMessage() {
